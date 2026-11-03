@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_home"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/nav_fatura"
+        android:icon="@drawable/ic_credit_card"
+        android:title="Cartão" />
+
+    <item
+        android:id="@+id/nav_produtos"
+        android:icon="@drawable/ic_shopping_bag"
+        android:title="Produtos" />
+
+    <item
+        android:id="@+id/nav_extrato"
+        android:icon="@drawable/ic_receipt"
+        android:title="Extrato" />
+
+    <item
+        android:id="@+id/nav_lowcode"
+        android:icon="@drawable/ic_test"
+        android:title="Testes" />
+</menu>

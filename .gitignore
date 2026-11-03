@@ -1,0 +1,45 @@
+# Android build outputs
+*.iml
+.gradle/
+/local.properties
+/build/
+app/build/
+/captures/
+.externalNativeBuild/
+.cxx/
+
+# Android Studio
+/.idea/caches/
+/.idea/libraries/
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+/.idea/.gitignore
+
+# macOS
+.DS_Store
+
+# Kotlin
+.kotlin/
+
+# Keystore / signing — NEVER commitar
+*.jks
+*.keystore
+keystore.properties
+release.properties
+
+# Firebase / Google services (contém API keys)
+google-services.json
+GoogleService-Info.plist
+
+# Backend
+backend/node_modules/
+backend/.env
+backend/.env.*
+
+# Claude Code session data
+.claude/
+
+# Gradle wrapper cache
+gradle/wrapper/gradle-wrapper.jar
