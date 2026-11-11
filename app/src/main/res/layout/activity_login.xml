@@ -62,17 +62,19 @@
                     android:textColor="@color/text_primary" />
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilContactKey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:hint="Usuário / CPF (ContactKey)"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/etContactKey"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="number"
+                        android:inputType="text"
+                        android:completionThreshold="0"
                         android:text="00011122233" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -99,6 +101,19 @@
                     android:text="Entrar"
                     android:textSize="16sp"
                     app:cornerRadius="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnClearCache"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Limpar cache do app"
+                    android:textSize="13sp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_clear_cache"
+                    app:iconSize="16dp"
+                    app:iconTint="@color/brand_primary" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

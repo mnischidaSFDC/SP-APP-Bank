@@ -15,6 +15,63 @@ object DatabaseRepository {
     // 10.0.2.2 aponta para o localhost da máquina hospedeira no Emulador Android
     private const val API_BASE = "http://10.0.2.2:3000"
 
+    suspend fun login(cpf: String, password: String): User? = withContext(Dispatchers.IO) {
+        try {
+            val url = URL("$API_BASE/login")
+            val conn = url.openConnection() as HttpURLConnection
+            conn.requestMethod = "POST"
+            conn.setRequestProperty("Content-Type", "application/json")
+            conn.doOutput = true
+            conn.connectTimeout = 5000
+            conn.readTimeout = 5000
+            val body = """{"cpf":"$cpf","password":"$password"}"""
+            conn.outputStream.bufferedWriter().use { it.write(body) }
+            val code = conn.responseCode
+            if (code == 401) return@withContext null
+            if (code != 200) {
+                Log.e(TAG, "POST /login retornou HTTP $code para CPF=$cpf")
+                return@withContext null
+            }
+            val response = conn.inputStream.bufferedReader().readText()
+            val json = JSONObject(response)
+            return@withContext User(
+                id = json.getString("id"),
+                cpf = json.getString("cpf"),
+                fullName = json.getString("fullName"),
+                firstName = json.getString("firstName"),
+                lastName = json.getString("lastName"),
+                email = if (json.isNull("email")) "" else json.optString("email"),
+                phone = if (json.isNull("phone")) null else json.getString("phone")
+            )
+        } catch (e: Throwable) {
+            Log.e(TAG, "Erro no login para CPF=$cpf: ${e.javaClass.simpleName} - ${e.message}")
+            return@withContext null
+        }
+    }
+
+    data class PjUser(val cpf: String, val fullName: String)
+
+    suspend fun getUsersWithPjAccount(): List<PjUser> = withContext(Dispatchers.IO) {
+        try {
+            val url = URL("$API_BASE/users/with-pj")
+            val conn = url.openConnection() as HttpURLConnection
+            conn.connectTimeout = 5000
+            conn.readTimeout = 5000
+            if (conn.responseCode != 200) return@withContext emptyList()
+            val body = conn.inputStream.bufferedReader().readText()
+            val jsonArray = JSONArray(body)
+            val list = mutableListOf<PjUser>()
+            for (i in 0 until jsonArray.length()) {
+                val o = jsonArray.getJSONObject(i)
+                list.add(PjUser(cpf = o.getString("cpf"), fullName = o.getString("fullName")))
+            }
+            return@withContext list
+        } catch (e: Throwable) {
+            Log.e(TAG, "Erro ao buscar usuários com conta PJ: ${e.javaClass.simpleName} - ${e.message}")
+            return@withContext emptyList()
+        }
+    }
+
     suspend fun getUserByCpf(cpf: String): User? = withContext(Dispatchers.IO) {
         try {
             val url = URL("$API_BASE/users/$cpf")
@@ -65,8 +122,8 @@ object DatabaseRepository {
                     CompanyDetails(
                         cnpj = cd.optString("cnpj"),
                         companyName = cd.optString("companyName"),
-                        tradeName = cd.optString("tradeName").ifEmpty { null },
-                        corporateEmail = cd.optString("corporateEmail").ifEmpty { null }
+                        tradeName = if (cd.isNull("tradeName")) null else cd.getString("tradeName"),
+                        corporateEmail = if (cd.isNull("corporateEmail")) null else cd.getString("corporateEmail")
                     )
                 } else null
                 accounts.add(Account(
@@ -78,6 +135,7 @@ object DatabaseRepository {
                     balance = a.getDouble("balance"),
                     availableLimit = a.getDouble("availableLimit"),
                     cardInvoice = a.getDouble("cardInvoice"),
+                    idClientePJ = if (!a.isNull("idClientePJ")) a.getString("idClientePJ") else null,
                     companyDetails = companyDetails
                 ))
             }

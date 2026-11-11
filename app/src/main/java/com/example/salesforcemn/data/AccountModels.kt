@@ -28,6 +28,7 @@ data class Account(
     val balance: Double,
     val availableLimit: Double,
     val cardInvoice: Double,
+    val idClientePJ: String? = null,
     val companyDetails: CompanyDetails? = null
 ) : Serializable
 
