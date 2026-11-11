@@ -9,6 +9,8 @@ appcompat = "1.6.1"
 material = "1.10.0"
 personalizationSdk = "3.+"
 personalizationLowcode = "1.+"
+mobileAppMessagingSdk = "1.1.1"
+firebaseBom = "33.10.0"
 coil = "2.7.0"
 composeBom = "2025.05.01"
 activityCompose = "1.9.3"
@@ -22,6 +24,9 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 salesforce-personalization-sdk = { group = "com.salesforce.personalization", name = "sdk", version.ref = "personalizationSdk" }
 salesforce-personalization-lowcode = { group = "com.salesforce.personalization", name = "lowcodemobile", version.ref = "personalizationLowcode" }
+salesforce-mobileappmessaging = { group = "com.salesforce.marketingcloud", name = "mobileappmessagingsdk", version.ref = "mobileAppMessagingSdk" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
@@ -33,3 +38,4 @@ activity-compose = { group = "androidx.activity", name = "activity-compose", ver
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version = "4.4.2" }

@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -11,7 +12,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.example.salesforcemn"
+        applicationId = "com.salesforce.nextgen"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -41,6 +42,9 @@ android {
 dependencies {
     implementation(libs.salesforce.personalization.sdk)
     implementation(libs.salesforce.personalization.lowcode)
+    implementation(libs.salesforce.mobileappmessaging)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
     implementation(libs.coil)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
