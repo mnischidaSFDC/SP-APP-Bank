@@ -7,115 +7,107 @@
     android:layout_marginBottom="16dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="6dp"
-    app:cardBackgroundColor="@color/card_bg"
-    app:strokeWidth="1dp"
-    app:strokeColor="#E2E8F0">
+    app:cardCornerRadius="20dp"
+    app:cardElevation="10dp"
+    app:cardBackgroundColor="#4F46E5"
+    app:strokeWidth="0dp">
 
     <LinearLayout
+        android:id="@+id/llCardContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:background="@drawable/gradient_card_pf"
         android:padding="20dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
-
-            <TextView
-                android:id="@+id/tvAccountBadge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pessoa Física"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:background="@drawable/circle_icon_bg"
-                android:backgroundTint="#4F46E5"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/tvAgencyAccount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ag 0001 • C/C 100200-1"
-                android:textSize="13sp"
-                android:textColor="@color/text_secondary" />
-
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvAccountName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Marcel Nishida"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary" />
-
-        <TextView
-            android:id="@+id/tvCnpjCompany"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="CNPJ: 12.345.678/0001-90"
-            android:textSize="13sp"
-            android:textColor="@color/text_secondary"
-            android:visibility="gone" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E2E8F0"
-            android:layout_marginVertical="12dp" />
-
+        <!-- Linha superior: ícone + nome/agência + seta -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
+            <ImageView
+                android:id="@+id/ivAccountBadge"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_person"
+                android:background="@drawable/circle_white_semi"
+                android:padding="10dp"
+                android:contentDescription="Tipo de conta" />
+
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginStart="14dp">
 
                 <TextView
+                    android:id="@+id/tvAccountName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Saldo disponível"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_secondary" />
-
-                <TextView
-                    android:id="@+id/tvAccountBalance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="R$ 12.450,80"
-                    android:textSize="18sp"
+                    android:text="Conta Pessoal"
+                    android:textSize="17sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary" />
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/tvAgencyAccount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Ag 0001 • C/C 100200-1"
+                    android:textSize="12sp"
+                    android:textColor="#CCFFFFFF" />
 
             </LinearLayout>
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_home"
-                app:tint="#4F46E5" />
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_chevron_right"
+                android:alpha="0.7" />
 
         </LinearLayout>
+
+        <!-- CNPJ (somente PJ) -->
+        <TextView
+            android:id="@+id/tvCnpjCompany"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="62dp"
+            android:text="CNPJ: 00.000.000/0001-00"
+            android:textSize="12sp"
+            android:textColor="#CCFFFFFF"
+            android:visibility="gone" />
+
+        <!-- Divisor -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#33FFFFFF"
+            android:layout_marginVertical="16dp" />
+
+        <!-- Saldo -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Saldo disponível"
+            android:textSize="12sp"
+            android:textColor="#CCFFFFFF"
+            android:letterSpacing="0.05" />
+
+        <TextView
+            android:id="@+id/tvAccountBalance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="R$ 12.450,80"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
