@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.salesforcemn.data.Account
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.salesforce.marketingcloud.sfmcsdk.SFMCSdk
 import com.salesforce.marketingcloud.sfmcsdk.components.events.EventManager
 
 class DashboardActivity : AppCompatActivity() {
@@ -24,6 +26,7 @@ class DashboardActivity : AppCompatActivity() {
     private var isValuesMasked = false
     private var currentFragment: Fragment? = null
     private var userName = ""
+    private var contactKey = ""
     private var accounts: ArrayList<Account> = arrayListOf()
 
     private val switchAccountLauncher = registerForActivityResult(
@@ -49,6 +52,7 @@ class DashboardActivity : AppCompatActivity() {
         @Suppress("DEPRECATION")
         selectedAccount = intent.getSerializableExtra("selectedAccount") as? Account
         userName = intent.getStringExtra("userName") ?: ""
+        contactKey = intent.getStringExtra("contactKey") ?: ""
         @Suppress("UNCHECKED_CAST")
         accounts = (intent.getSerializableExtra("accounts") as? ArrayList<Account>) ?: arrayListOf()
 
@@ -161,6 +165,7 @@ class DashboardActivity : AppCompatActivity() {
             val intent = Intent(this, AccountSelectionActivity::class.java).apply {
                 putExtra("accounts", accounts)
                 putExtra("userName", userName)
+                putExtra("contactKey", contactKey)
                 putExtra("switchMode", true)
             }
             switchAccountLauncher.launch(intent)
@@ -187,7 +192,6 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         btnNotifications.setOnClickListener {
-            // Track Custom Event on Notifications Click
             EventManager.customEvent(
                 name = "custom",
                 attributes = mapOf(
@@ -198,6 +202,32 @@ class DashboardActivity : AppCompatActivity() {
 
             Toast.makeText(this, "Você não tem novas notificações.", Toast.LENGTH_SHORT).show()
         }
+
+        val btnLogout = findViewById<ImageButton>(R.id.btnLogout)
+        btnLogout.setOnClickListener {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Sair da conta")
+                .setMessage("Deseja encerrar a sessão?")
+                .setPositiveButton("Sair") { _, _ -> performLogout() }
+                .setNegativeButton("Cancelar", null)
+                .show()
+        }
+    }
+
+    private fun performLogout() {
+        SFMCSdk.requestSdk { sdk ->
+            sdk.identity.edit {
+                partyIdentificationNumber = ""
+                partyIdentificationName = ""
+                partyIdentificationType = ""
+            }
+        }
+
+        val intent = Intent(this, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
     }
 
     private fun applyMaskedStateToFragment(fragment: Fragment) {

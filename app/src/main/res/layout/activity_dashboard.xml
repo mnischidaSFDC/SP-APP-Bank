@@ -94,6 +94,16 @@
             android:src="@drawable/ic_notifications"
             android:contentDescription="Notificações"
             app:tint="@color/white" />
+
+        <ImageButton
+            android:id="@+id/btnLogout"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_logout"
+            android:contentDescription="Sair"
+            app:tint="@color/white" />
     </LinearLayout>
 
     <!-- Main Content Container for Tabs/Fragments -->
