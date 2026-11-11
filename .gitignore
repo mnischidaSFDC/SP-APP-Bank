@@ -9,13 +9,10 @@ app/build/
 .cxx/
 
 # Android Studio
-/.idea/caches/
-/.idea/libraries/
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-/.idea/.gitignore
+.idea/
+
+# Firebase debug logs
+backend/firebase-debug.log
 
 # macOS
 .DS_Store
