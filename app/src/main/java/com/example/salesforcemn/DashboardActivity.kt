@@ -15,6 +15,8 @@ import androidx.fragment.app.Fragment
 import com.example.salesforcemn.data.Account
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.salesforce.marketingcloud.cdp.CdpSdk
+import com.salesforce.marketingcloud.cdp.events.Event
 import com.salesforce.marketingcloud.sfmcsdk.SFMCSdk
 import com.salesforce.marketingcloud.sfmcsdk.components.events.EventManager
 
@@ -71,36 +73,36 @@ class DashboardActivity : AppCompatActivity() {
 
         val llHeaderBar = findViewById<LinearLayout>(R.id.llHeaderBar)
         val tvWelcomeLabel = findViewById<TextView>(R.id.tvWelcomeLabel)
+        val tvAccountNumber = findViewById<TextView>(R.id.tvAccountNumber)
         val tvGreeting = findViewById<TextView>(R.id.tvGreeting)
         val tvAvatarInitials = findViewById<TextView>(R.id.tvAvatarInitials)
         val flAvatarCircle = findViewById<FrameLayout>(R.id.flAvatarCircle)
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
 
+        tvAccountNumber?.text = "C/C ${account.accountNumber}"
+
         if (account.accountType == "PJ") {
-            // Aplica o tema escuro/médio para conta PJ
             llHeaderBar?.setBackgroundColor(Color.parseColor("#0F172A"))
-            tvWelcomeLabel?.text = "Conta Pessoa Jurídica • C/C ${account.accountNumber}"
-            
-            val companyName = account.companyDetails?.tradeName 
-                ?: account.companyDetails?.companyName 
+            tvWelcomeLabel?.text = "Conta Pessoa Jurídica"
+
+            val companyName = account.companyDetails?.tradeName
+                ?: account.companyDetails?.companyName
                 ?: "Empresa PJ"
-            
+
             tvGreeting?.text = companyName
-            
-            // Iniciais da empresa
+
             val initials = companyName.split(" ")
                 .filter { it.isNotBlank() }
                 .take(2)
                 .map { it.first().uppercaseChar() }
                 .joinToString("")
             tvAvatarInitials?.text = if (initials.isNotEmpty()) initials else "PJ"
-            
+
             flAvatarCircle?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#0284C7"))
             bottomNav?.setBackgroundColor(Color.parseColor("#0F172A"))
         } else {
-            // Tema padrão para conta PF
             llHeaderBar?.setBackgroundColor(Color.parseColor("#312E81"))
-            tvWelcomeLabel?.text = "Conta Pessoa Física • C/C ${account.accountNumber}"
+            tvWelcomeLabel?.text = "Conta Pessoa Física"
             tvGreeting?.text = if (userName.isNotBlank()) "Olá, $userName" else "Olá"
             val initials = userName.split(" ")
                 .filter { it.isNotBlank() }
@@ -221,6 +223,16 @@ class DashboardActivity : AppCompatActivity() {
                 partyIdentificationName = ""
                 partyIdentificationType = ""
             }
+        }
+
+        // Limpa partyIdentification também no Data Cloud
+        CdpSdk.requestSdk { cdp ->
+            val event = Event.profile("partyIdentification", mapOf(
+                "partyIdentificationNumber" to "",
+                "partyIdentificationName" to "",
+                "partyIdentificationType" to ""
+            ))
+            cdp.track(event)
         }
 
         val intent = Intent(this, LoginActivity::class.java).apply {
