@@ -16,29 +16,14 @@ import androidx.lifecycle.lifecycleScope
 import com.example.salesforcemn.data.DatabaseRepository
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
-import com.salesforce.marketingcloud.cdp.CdpConfig
 import com.salesforce.marketingcloud.cdp.CdpSdk
-import com.salesforce.marketingcloud.cdp.consent.Consent
+import com.salesforce.marketingcloud.cdp.events.Event
 import com.google.firebase.messaging.FirebaseMessaging
-import com.salesforce.marketingcloud.mobileappmessaging.MobileAppMessaging
-import com.salesforce.marketingcloud.mobileappmessaging.MobileAppMessagingConfig
-import com.salesforce.marketingcloud.mobileappmessaging.registration.RegistrationManager
-import com.salesforce.marketingcloud.pushfeature.config.PushFeatureConfig
-import com.salesforce.marketingcloud.pushfeature.notifications.NotificationCustomizationOptions
-import com.salesforce.marketingcloud.sfmcsdk.InitializationStatus
 import com.salesforce.marketingcloud.sfmcsdk.SFMCSdk
-import com.salesforce.marketingcloud.sfmcsdk.SFMCSdkModuleConfig
 import com.salesforce.marketingcloud.sfmcsdk.components.events.EventManager
-import com.salesforce.marketingcloud.sfmcsdk.components.logging.LogLevel
-import com.salesforce.marketingcloud.sfmcsdk.components.logging.LogListener.AndroidLogger
-import com.salesforce.personalization.PersonalizationConfig
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
-
-    companion object {
-        private var sdkInitialized = false
-    }
 
     private val requestNotificationPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -136,6 +121,20 @@ class LoginActivity : AppCompatActivity() {
                     Log.d("CDP_IDENTITY", "identity.edit enviado — partyId=$contactKey attrs=$cdpAttrs")
                 }
 
+                // Envia partyIdentification como ProfileEvent para o Data Cloud (CDP)
+                // sdk.identity.edit envia partyIdentification* apenas para o MAM;
+                // o CdpSdk.track com Event.profile é necessário para o Data Cloud receber o evento
+                val partyIdAttrs = mapOf(
+                    "partyIdentificationNumber" to contactKey,
+                    "partyIdentificationName" to "CPF",
+                    "partyIdentificationType" to "CPF"
+                )
+                CdpSdk.requestSdk { cdp ->
+                    val event = Event.profile("partyIdentification", partyIdAttrs)
+                    cdp.track(event)
+                    Log.d("CDP_IDENTITY", "ProfileEvent partyIdentification tracked no Data Cloud — cpf=$contactKey")
+                }
+
                 // 2. Track Custom Event on login action
                 EventManager.customEvent("custom", mapOf(
                     "interactionName" to "Login Efetuado",
@@ -158,102 +157,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun initSalesforceSdk() {
-        // SDK já inicializado: apenas re-registra o listener MAM para o novo ciclo de login
-        if (sdkInitialized) {
-            Log.d("LoginActivity", "SFMCSdk já inicializado — re-registrando listener MAM")
-            registerMamListener()
-            trackScreenView("Login Tela", "AppLaunch")
-            return
-        }
-        sdkInitialized = true
-
-        val appId = "e4fc0f7f-11f7-4b70-ac2e-0dd4d79c0b04"
-        val endpoint = "https://gqyt0ntgg5tg0mrsgztgcmjxmq.c360a.salesforce.com"
-
-        SFMCSdk.setLogging(LogLevel.DEBUG, AndroidLogger())
-
-        val cdpModuleConfig = CdpConfig.Builder(this, appId, endpoint)
-            .trackScreens(true)
-            .trackLifecycle(true)
-            .sessionTimeout(600)
-            .eventFlushRate(CdpConfig.EventFlushRate.Quantity(1))
-            .build()
-
-        val personalizationConfig = PersonalizationConfig.Builder(this)
-            .cdnUrl("https://cdn.c360a.salesforce.com/beacon/module_configuration/e4fc0f7f-11f7-4b70-ac2e-0dd4d79c0b04/config/app-config.json")
-            .build()
-
-        val mamConfig = MobileAppMessagingConfig.builder()
-            .moduleApplicationId("a6f9d046-be13-4061-84d0-392ffd0d6cbb")
-            .tenantId("core/prod/00DgK00000ZBjNRUA1")
-            .accessToken("2G9mnXLQ8PsZpjKJU0CDudcQ")
-            .endpointUrl("https://api.salesforce.com/")
-            .build()
-
-        val pushConfig = PushFeatureConfig.builder()
-            .setSenderId("989495332954")
-            .setNotificationCustomizationOptions(
-                NotificationCustomizationOptions.create(R.mipmap.ic_launcher)
-            )
-            .build()
-
-        SFMCSdk.configure(this, SFMCSdkModuleConfig.build {
-            this.cdpModuleConfig = cdpModuleConfig
-            this.personalizationModuleConfig = personalizationConfig
-            this.mamModuleConfig = mamConfig
-            this.pushFeatureModuleConfig = pushConfig
-        }) { status ->
-            Log.d("LoginActivity", "SFMCSdk status: ${status.status}")
-
-            // CDP consent é setado independentemente do MAM/Push — não bloqueia Data Cloud se outro módulo falhar
-            CdpSdk.requestSdk { cdp ->
-                cdp.consent = Consent.OPT_IN
-                Log.d("LoginActivity", "CDP Consent.OPT_IN confirmado — trackScreenView disparando")
-                trackScreenView("Login Tela", "AppLaunch")
-            }
-
-            if (status.status == InitializationStatus.SUCCESS) {
-                Log.d("LoginActivity", "SFMCSdk configurado com sucesso (todos os módulos)")
-
-                registerMamListener()
-
-                // Registra o token atual no PushFeature (onNewToken pode não disparar se o token já existe)
-                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val token = task.result
-                        Log.d("LoginActivity", "FCM SystemToken: $token")
-                        com.salesforce.marketingcloud.pushfeature.PushFeature.requestSdk { push ->
-                            push.getPushMessageManager().setPushToken(token)
-                            Log.d("LoginActivity", "Token registrado no PushFeature com sucesso")
-                        }
-                    } else {
-                        Log.e("LoginActivity", "Falha ao obter FCM token", task.exception)
-                    }
-                }
-            } else {
-                Log.w("LoginActivity", "SFMCSdk status não é SUCCESS: ${status.status} — MAM ou Push pode estar falhando")
-            }
-        }
-    }
-
-    private fun registerMamListener() {
-        Log.d("MAM_REGISTRATION", "MAM pronto: ${MobileAppMessaging.isReady()} | registrando listener...")
-        MobileAppMessaging.requestSdk { mam ->
-            Log.d("MAM_REGISTRATION", "requestSdk callback executou — deviceId: ${mam.getRegistrationManager().getDeviceId()}")
-            mam.getRegistrationManager().registerForRegistrationEvents(
-                object : RegistrationManager.RegistrationEventListener {
-                    override fun onRegistrationReceived(responseBody: org.json.JSONObject) {
-                        Log.d("MAM_REGISTRATION", "Payload enviado ao servidor:")
-                        Log.d("MAM_REGISTRATION", "  partyIdentificationNumber: ${responseBody.optString("partyIdentificationNumber")}")
-                        Log.d("MAM_REGISTRATION", "  partyIdentificationName  : ${responseBody.optString("partyIdentificationName")}")
-                        Log.d("MAM_REGISTRATION", "  partyIdentificationType  : ${responseBody.optString("partyIdentificationType")}")
-                        Log.d("MAM_REGISTRATION", "  deviceSystemToken        : ${responseBody.optString("deviceSystemToken")}")
-                        Log.d("MAM_REGISTRATION", "  deviceId                 : ${responseBody.optString("deviceId")}")
-                        Log.d("MAM_REGISTRATION", "  payload completo         : $responseBody")
-                    }
-                }
-            )
-        }
+        // O SDK é configurado em SalesforceApp.onCreate; aqui só registramos a tela de login
+        CdpSdk.requestSdk { trackScreenView("Login Tela", "AppLaunch") }
     }
 
     private fun clearAppCache() {

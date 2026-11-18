@@ -57,6 +57,15 @@
                 android:textColor="#A5B4FC" />
 
             <TextView
+                android:id="@+id/tvAccountNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="C/C 000000-0"
+                android:textSize="11sp"
+                android:textColor="#7C83C8"
+                android:layout_marginBottom="2dp" />
+
+            <TextView
                 android:id="@+id/tvGreeting"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -120,8 +129,9 @@
         android:layout_height="wrap_content"
         android:background="@color/card_bg"
         app:elevation="8dp"
-        app:itemIconTint="@color/brand_primary"
-        app:itemTextColor="@color/brand_primary"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/nav_item_color"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
 
 </LinearLayout>
